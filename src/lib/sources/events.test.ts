@@ -19,10 +19,40 @@ describe("parseAgendaPage", () => {
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({
       title: "Postals i cartes de Joan Argenté",
+      typeLabel: "Lectura",
       dateLabel: "18 de juny",
-      startsAt: "2026-06-18T10:00:00.000Z"
+      startsAt: "2026-06-18T10:00:00.000Z",
+      place: "Biblioteca Canyadó i Casagemes - Joan Argenté"
     });
     expect(items[0]?.neighborhoodTags).toContain("Canyado");
     expect(items[0]?.neighborhoodTags).toContain("Casagemes");
+  });
+
+  it("uses the full event container and ignores generic agenda labels", () => {
+    const items = parseAgendaPage(
+      `
+      <article>
+        <span>AGENDA</span>
+        <time>19/06/2026</time>
+        <div>
+          <h3>
+            <a href="/ca/actualitat/agenda/primers-auxilis">
+              Taller de primers auxilis i l'ús del desfibril·lador
+            </a>
+          </h3>
+        </div>
+        <p>Centre Cívic Can Cabanes</p>
+      </article>
+    `,
+      2026
+    );
+
+    expect(items[0]).toMatchObject({
+      title: "Taller de primers auxilis i l'ús del desfibril·lador",
+      typeLabel: "Taller",
+      dateLabel: "19/06/2026",
+      startsAt: "2026-06-19T10:00:00.000Z",
+      place: "Centre Cívic Can Cabanes"
+    });
   });
 });

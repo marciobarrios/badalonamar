@@ -73,6 +73,26 @@ function formatDate(date: string | null) {
   }).format(parsed);
 }
 
+function formatEventDay(event: EventItem) {
+  if (!event.startsAt) {
+    return event.dateLabel || null;
+  }
+
+  const parsed = new Date(event.startsAt);
+  if (Number.isNaN(parsed.valueOf())) {
+    return event.dateLabel || event.startsAt;
+  }
+
+  return new Intl.DateTimeFormat("ca", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "Europe/Madrid"
+  })
+    .format(parsed)
+    .replace(".", "");
+}
+
 function skyInCatalan(description: string | null) {
   if (!description) {
     return "Temps variable";
@@ -282,7 +302,7 @@ function BeachCard({ beach }: { beach: BeachStatus }) {
         <div className="p-3">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-sm font-bold leading-tight">{beach.name}</h3>
-            {beach.nearby ? <Badge>Prop</Badge> : null}
+            {beach.nearby ? <Badge>A prop</Badge> : null}
           </div>
           <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
             <div>
@@ -346,36 +366,46 @@ function EventsPanel({ events }: { events: AppProps["events"] }) {
       </SectionTitle>
       {events.data.items.length ? (
         <div className="space-y-3">
-          {events.data.items.map((event) => (
-            <a
-              key={event.id}
-              href={event.url}
-              target="_blank"
-              rel="noreferrer"
-              className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
-                    {event.dateLabel || formatDate(event.startsAt) || "Agenda"}
-                  </p>
-                  <h3 className="mt-2 text-base font-bold leading-tight">{event.title}</h3>
+          {events.data.items.map((event) => {
+            const eventDay = formatEventDay(event);
+
+            return (
+              <a
+                key={event.id}
+                href={event.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline">{event.typeLabel}</Badge>
+                      {eventDay ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                          <CalendarDays className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                          {eventDay}
+                        </span>
+                      ) : null}
+                    </div>
+                    <h3 className="mt-2 text-base font-bold leading-tight">{event.title}</h3>
+                  </div>
+                  <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
                 </div>
-                <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
-              </div>
-              {event.place ? (
-                <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4" aria-hidden="true" />
-                  {event.place}
-                </p>
-              ) : null}
-              {event.description ? (
-                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                  {event.description}
-                </p>
-              ) : null}
-            </a>
-          ))}
+                {event.place ? (
+                  <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4" aria-hidden="true" />
+                    {event.place}
+                  </p>
+                ) : null}
+                {event.description ? (
+                  <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                    {event.description}
+                  </p>
+                ) : null}
+              </a>
+            );
+          })}
         </div>
       ) : (
         <EmptyState

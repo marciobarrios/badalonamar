@@ -50,6 +50,7 @@ export type EventItem = {
   title: string;
   url: string;
   description: string | null;
+  typeLabel: string;
   dateLabel: string;
   startsAt: string | null;
   place: string | null;
