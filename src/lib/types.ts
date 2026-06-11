@@ -66,6 +66,9 @@ export type Recommendation = {
   address?: string;
   url?: string;
   image?: string;
+  source?: "curated";
+  sourceLabel?: string;
+  scoreLabel?: string;
   tags: string[];
 };
 

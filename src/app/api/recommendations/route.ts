@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { recommendations } from "@/lib/recommendations";
+import { getRecommendations } from "@/lib/sources/recommendations";
 
-export function GET() {
-  return NextResponse.json(recommendations);
+export async function GET() {
+  return NextResponse.json(await getRecommendations());
 }

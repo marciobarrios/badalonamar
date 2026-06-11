@@ -1,8 +1,8 @@
 import { BadalonaMarApp } from "@/components/badalonamar-app";
-import { recommendations } from "@/lib/recommendations";
 import { getBeachStatuses } from "@/lib/sources/beaches";
 import { getEvents } from "@/lib/sources/events";
 import { getNews } from "@/lib/sources/news";
+import { getRecommendations } from "@/lib/sources/recommendations";
 import { getWeatherToday } from "@/lib/sources/weather";
 
 function currentBarcelonaMonth() {
@@ -17,11 +17,12 @@ function currentBarcelonaMonth() {
 }
 
 export default async function Home() {
-  const [weather, beaches, news, events] = await Promise.all([
+  const [weather, beaches, news, events, recommendations] = await Promise.all([
     getWeatherToday(),
     getBeachStatuses(),
     getNews(),
-    getEvents(currentBarcelonaMonth())
+    getEvents(currentBarcelonaMonth()),
+    getRecommendations()
   ]);
 
   return (

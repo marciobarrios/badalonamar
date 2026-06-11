@@ -46,7 +46,11 @@ type AppProps = {
     items: EventItem[];
     sourceUrl: string;
   }>;
-  recommendations: Recommendation[];
+  recommendations: SourceResult<{
+    items: Recommendation[];
+    source: "curated";
+    sourceUrl: string;
+  }>;
 };
 
 const tabs = [
@@ -91,6 +95,56 @@ function formatEventDay(event: EventItem) {
   })
     .format(parsed)
     .replace(".", "");
+}
+
+function parseBeachDataDate(date: string | null) {
+  if (!date) {
+    return null;
+  }
+
+  const municipalDate = date.match(
+    /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/
+  );
+
+  if (municipalDate) {
+    const [, day, month, year, hour, minute] = municipalDate;
+    return {
+      date: new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), 12)),
+      sortKey: `${year}${month.padStart(2, "0")}${day.padStart(2, "0")}${(hour ?? "00").padStart(2, "0")}${minute ?? "00"}`
+    };
+  }
+
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.valueOf())) {
+    return null;
+  }
+
+  return {
+    date: parsed,
+    sortKey: String(parsed.valueOf()).padStart(13, "0")
+  };
+}
+
+function formatBeachDataDay(beaches: BeachStatus[]) {
+  const latest = beaches
+    .map((beach) => parseBeachDataDate(beach.updatedAt))
+    .filter((date): date is NonNullable<ReturnType<typeof parseBeachDataDate>> => Boolean(date))
+    .sort((a, b) => b.sortKey.localeCompare(a.sortKey))[0];
+
+  if (!latest) {
+    return null;
+  }
+
+  const day = new Intl.DateTimeFormat("ca", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC"
+  })
+    .format(latest.date)
+    .replace(",", "");
+
+  return day;
 }
 
 function skyInCatalan(description: string | null) {
@@ -329,10 +383,20 @@ function BeachCard({ beach }: { beach: BeachStatus }) {
 }
 
 function BeachesPanel({ beaches }: { beaches: AppProps["beaches"] }) {
+  const dataDay = formatBeachDataDay(beaches.data.beaches);
+
   return (
     <section className="space-y-4">
       <SectionTitle eyebrow="Temporada de bany" title="Estat de les platges">
-        <Sailboat className="h-6 w-6 text-primary" aria-hidden="true" />
+        <div className="flex items-center gap-2 text-left">
+          <Sailboat className="h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+          {dataDay ? (
+            <span className="max-w-36 text-left text-xs leading-tight">
+              <span className="block font-medium text-muted-foreground/70">Dades del</span>
+              <span className="block font-bold text-foreground">{dataDay}</span>
+            </span>
+          ) : null}
+        </div>
       </SectionTitle>
       {!beaches.data.active ? (
         <EmptyState
@@ -422,15 +486,17 @@ function EventsPanel({ events }: { events: AppProps["events"] }) {
 function RecommendationsPanel({
   recommendations
 }: {
-  recommendations: Recommendation[];
+  recommendations: AppProps["recommendations"];
 }) {
+  const items = recommendations.data.items;
+
   return (
     <section className="space-y-4">
       <SectionTitle eyebrow="Guia viva" title="Recomanacions">
         <Sparkles className="h-6 w-6 text-primary" aria-hidden="true" />
       </SectionTitle>
       <div className="grid min-w-0 gap-3">
-        {recommendations.map((item) => (
+        {items.map((item) => (
           <Card key={item.id} className="min-w-0 overflow-hidden">
             <CardHeader className="pb-3">
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
@@ -445,6 +511,25 @@ function RecommendationsPanel({
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+              {item.address || item.scoreLabel || item.sourceLabel ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
+                  {item.scoreLabel ? <span>{item.scoreLabel}</span> : null}
+                  {item.address ? (
+                    <span className="line-clamp-1 min-w-0">{item.address}</span>
+                  ) : null}
+                  {item.url ? (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline"
+                    >
+                      {item.sourceLabel ?? "Obrir"}
+                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {item.tags.map((tag) => (
                   <Badge key={tag} variant={tag === "pendent" ? "coral" : "secondary"}>
@@ -455,6 +540,10 @@ function RecommendationsPanel({
             </CardContent>
           </Card>
         ))}
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-medium text-muted-foreground">Curació local</p>
+        <SourceNote health={recommendations.health} />
       </div>
     </section>
   );
