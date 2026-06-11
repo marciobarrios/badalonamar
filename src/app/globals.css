@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: oklch(0.985 0.008 188);
+  --foreground: oklch(0.215 0.024 215);
+  --card: oklch(0.965 0.012 185);
+  --card-foreground: oklch(0.215 0.024 215);
+  --popover: oklch(0.985 0.008 188);
+  --popover-foreground: oklch(0.215 0.024 215);
+  --primary: oklch(0.52 0.112 205);
+  --primary-foreground: oklch(0.985 0.008 188);
+  --secondary: oklch(0.92 0.026 176);
+  --secondary-foreground: oklch(0.245 0.034 205);
+  --muted: oklch(0.91 0.014 190);
+  --muted-foreground: oklch(0.48 0.027 210);
+  --accent: oklch(0.84 0.055 178);
+  --accent-foreground: oklch(0.245 0.034 205);
+  --coral: oklch(0.74 0.13 38);
+  --coral-foreground: oklch(0.22 0.025 35);
+  --destructive: oklch(0.58 0.19 27);
+  --destructive-foreground: oklch(0.985 0.008 188);
+  --border: oklch(0.84 0.018 190);
+  --input: oklch(0.84 0.018 190);
+  --ring: oklch(0.62 0.105 205);
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-coral: var(--coral);
+  --color-coral-foreground: var(--coral-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  background:
+    linear-gradient(180deg, oklch(0.985 0.008 188), oklch(0.94 0.025 178) 48%, oklch(0.965 0.015 70));
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+.root {
+  isolation: isolate;
+}
+
+::selection {
+  background: oklch(0.84 0.055 178);
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
