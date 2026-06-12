@@ -287,7 +287,7 @@ function NewsList({ news }: { news: AppProps["news"] }) {
               href={item.url}
               target="_blank"
               rel="noreferrer"
-              className="group grid grid-cols-[72px_1fr] gap-3 rounded-lg bg-card p-2 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group grid grid-cols-[72px_1fr] gap-3 rounded-lg bg-card p-2 shadow-sm transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="relative h-[72px] overflow-hidden rounded-md bg-muted">
                 {item.image ? (
@@ -299,12 +299,15 @@ function NewsList({ news }: { news: AppProps["news"] }) {
                     className="object-cover transition-transform duration-200 group-hover:scale-105"
                   />
                 ) : (
-                  <Newspaper className="m-5 h-7 w-7 text-muted-foreground" aria-hidden="true" />
+                  <Newspaper
+                    className="m-5 h-7 w-7 text-muted-foreground transition-colors group-hover:text-primary-foreground/80"
+                    aria-hidden="true"
+                  />
                 )}
               </div>
               <div className="min-w-0 py-1">
                 <p className="line-clamp-2 text-sm font-semibold leading-snug">{item.title}</p>
-                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground transition-colors group-hover:text-primary-foreground/80">
                   <span>{formatDate(item.publishedAt) ?? "BDNCom"}</span>
                   <ExternalLink className="h-3 w-3" aria-hidden="true" />
                 </div>
@@ -444,31 +447,39 @@ function EventsPanel({ events }: { events: AppProps["events"] }) {
                 href={event.url}
                 target="_blank"
                 rel="noreferrer"
-                className="block rounded-lg bg-card p-4 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="group block rounded-lg bg-card p-4 shadow-sm transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">{event.typeLabel}</Badge>
+                      <Badge
+                        variant="outline"
+                        className="transition-colors group-hover:border-transparent group-hover:bg-primary-foreground/15 group-hover:text-primary-foreground"
+                      >
+                        {event.typeLabel}
+                      </Badge>
                       {eventDay ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                          <CalendarDays className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground transition-colors group-hover:text-primary-foreground/80">
+                          <CalendarDays
+                            className="h-3.5 w-3.5 text-primary transition-colors group-hover:text-primary-foreground"
+                            aria-hidden="true"
+                          />
                           {eventDay}
                         </span>
                       ) : null}
                     </div>
                     <h3 className="mt-2 text-base font-bold leading-tight">{event.title}</h3>
                   </div>
-                  <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary-foreground/80" />
                 </div>
                 {event.place ? (
-                  <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors group-hover:text-primary-foreground/80">
                     <MapPin className="h-4 w-4" aria-hidden="true" />
                     {event.place}
                   </p>
                 ) : null}
                 {event.description ? (
-                  <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                  <p className="mt-2 line-clamp-2 text-sm text-muted-foreground transition-colors group-hover:text-primary-foreground/80">
                     {event.description}
                   </p>
                 ) : null}
