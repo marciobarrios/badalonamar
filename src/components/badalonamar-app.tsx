@@ -198,7 +198,7 @@ function EmptyState({
   icon: typeof Search;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-border bg-background/55 px-4 py-6 text-center">
+    <div className="rounded-lg bg-card px-4 py-6 text-center shadow-sm">
       <Icon className="mx-auto mb-3 h-5 w-5 text-muted-foreground" aria-hidden="true" />
       <p className="text-sm font-semibold">{title}</p>
       <p className="mt-1 text-sm text-muted-foreground">{text}</p>
@@ -232,7 +232,7 @@ function WeatherHero({ weather }: { weather: SourceResult<WeatherToday> }) {
   const data = weather.data;
 
   return (
-    <section className="relative overflow-hidden rounded-lg border border-border bg-card px-5 py-5 shadow-sm">
+    <section className="relative overflow-hidden rounded-lg bg-card px-5 py-5 shadow-sm">
       <div className="absolute right-4 top-4 h-20 w-20 rounded-full bg-accent/60 blur-2xl" />
       <div className="relative">
         <div className="flex items-start justify-between gap-4">
@@ -287,7 +287,7 @@ function NewsList({ news }: { news: AppProps["news"] }) {
               href={item.url}
               target="_blank"
               rel="noreferrer"
-              className="group grid grid-cols-[72px_1fr] gap-3 rounded-lg border border-border bg-card p-2 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group grid grid-cols-[72px_1fr] gap-3 rounded-lg bg-card p-2 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="relative h-[72px] overflow-hidden rounded-md bg-muted">
                 {item.image ? (
@@ -336,7 +336,12 @@ function NewsList({ news }: { news: AppProps["news"] }) {
 
 function BeachCard({ beach }: { beach: BeachStatus }) {
   return (
-    <Card className={cn("overflow-hidden", beach.nearby && "border-primary/45")}>
+    <Card
+      className={cn(
+        "overflow-hidden",
+        beach.nearby && "shadow-[0_10px_26px_oklch(0.52_0.112_205_/_0.18)]"
+      )}
+    >
       <div className="grid grid-cols-[88px_1fr]">
         <div className="relative min-h-28 bg-muted">
           {beach.photo ? (
@@ -439,7 +444,7 @@ function EventsPanel({ events }: { events: AppProps["events"] }) {
                 href={event.url}
                 target="_blank"
                 rel="noreferrer"
-                className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="block rounded-lg bg-card p-4 shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
