@@ -237,14 +237,13 @@ function WeatherHero({ weather }: { weather: SourceResult<WeatherToday> }) {
       <div className="relative">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-primary">BadalonaMar</p>
-            <h1 className="mt-2 max-w-[13ch] text-3xl font-bold leading-none tracking-normal">
-              El dia arran de mar
-            </h1>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              Badalona arran de mar
+            </p>
           </div>
           <CloudSun className="h-9 w-9 text-primary" aria-hidden="true" />
         </div>
-        <div className="mt-5 grid grid-cols-[1fr_auto] items-end gap-4">
+        <div className="mt-4 grid grid-cols-[1fr_auto] items-end gap-4">
           <div>
             <p className="text-sm text-muted-foreground">{skyInCatalan(data.skyDescription)}</p>
             <p className="mt-1 text-sm text-muted-foreground">
