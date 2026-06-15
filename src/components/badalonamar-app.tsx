@@ -640,7 +640,7 @@ export function BadalonaMarApp({
           <RecommendationsPanel recommendations={recommendations} />
         </Tabs.Panel>
       </main>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-3 pb-[calc(env(safe-area-inset-bottom)+0.55rem)] pt-2 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-background px-3 pb-[calc(env(safe-area-inset-bottom)+0.55rem)] pt-2 shadow-[0_-8px_24px_oklch(0.215_0.024_215_/_0.12)]">
         <Tabs.List className="mx-auto grid h-16 max-w-md grid-cols-4 gap-1" aria-label="Seccions">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -648,7 +648,7 @@ export function BadalonaMarApp({
               <Tabs.Tab
                 key={tab.value}
                 value={tab.value}
-                className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-semibold text-muted-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[active]:bg-primary data-[active]:text-primary-foreground"
+                className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[active]:bg-primary data-[active]:text-primary-foreground"
               >
                 <Icon className="h-5 w-5" aria-hidden="true" />
                 <span className="truncate">{tab.label}</span>

@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: oklch(0.985 0.008 188);
+  --background: oklch(0.966 0.016 351.9);
   --foreground: oklch(0.215 0.024 215);
-  --card: var(--background);
+  --card: oklch(0.992 0.004 352);
   --card-foreground: oklch(0.215 0.024 215);
-  --popover: oklch(0.985 0.008 188);
+  --popover: oklch(0.992 0.004 352);
   --popover-foreground: oklch(0.215 0.024 215);
-  --primary: oklch(0.52 0.112 205);
+  --primary: oklch(0.49 0.095 202);
   --primary-foreground: oklch(0.985 0.008 188);
-  --secondary: oklch(0.92 0.026 176);
+  --secondary: oklch(0.90 0.032 198);
   --secondary-foreground: oklch(0.245 0.034 205);
-  --muted: oklch(0.91 0.014 190);
-  --muted-foreground: oklch(0.48 0.027 210);
-  --accent: oklch(0.84 0.055 178);
+  --muted: oklch(0.925 0.010 352);
+  --muted-foreground: oklch(0.47 0.026 215);
+  --accent: oklch(0.86 0.045 198);
   --accent-foreground: oklch(0.245 0.034 205);
   --coral: oklch(0.74 0.13 38);
   --coral-foreground: oklch(0.22 0.025 35);
   --destructive: oklch(0.58 0.19 27);
   --destructive-foreground: oklch(0.985 0.008 188);
-  --border: oklch(0.84 0.018 190);
-  --input: oklch(0.84 0.018 190);
-  --ring: oklch(0.62 0.105 205);
+  --border: oklch(0.875 0.016 352);
+  --input: oklch(0.875 0.016 352);
+  --ring: oklch(0.58 0.090 202);
   --radius: 0.5rem;
 }
 
@@ -62,8 +62,7 @@ html {
 
 body {
   position: relative;
-  background:
-    linear-gradient(180deg, oklch(0.985 0.008 188), oklch(0.94 0.025 178) 48%, oklch(0.965 0.015 70));
+  background: var(--background);
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
