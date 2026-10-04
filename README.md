@@ -35,6 +35,12 @@ The app uses server-side adapters so external source parsing stays isolated from
 
 Beach data is shown as an active section from June 1 to September 30. Outside that window, the app keeps the section but explains that the bathing season is inactive.
 
+Source adapters cache successful parsed results in the Next.js Data Cache: news for 15 minutes, agenda for 1 hour, weather for 30 minutes, and beach status for 20 minutes. Upstream requests inside these caches use `no-store` so raw HTML/JSON does not add another freshness window. Agenda parsing is shared across months of the same inferred year; month filtering and beach season checks still run per request.
+
+The four source APIs allow shared caching only for the remaining source lifetime, with immediate browser revalidation. Errors are handled outside the data cache and return `Cache-Control: no-store`. If a background refresh fails, Next.js retains the last successful value; expired values are labeled `stale` and are not shared-cacheable. Default-month agenda responses and beach responses also expire before their calendar boundary. Curated recommendations keep their existing behavior.
+
+Cache keys include a parser version (`v1`); bump it when changing parsing or normalization semantics. The cache tests exercise Next.js's real incremental cache with isolated in-memory storage and mocked upstream responses.
+
 ## Getting Started
 
 Install dependencies:

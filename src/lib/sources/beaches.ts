@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { unstable_cache } from "next/cache";
 import type { BeachStatus } from "@/lib/types";
 import { BEACHES_URL, NEARBY_BEACHES } from "@/lib/sources/constants";
 import { isSummer, nowIso, numberOrNull, sourceError, sourceOk } from "@/lib/sources/helpers";
+import { BEACHES_REVALIDATE_SECONDS, withSourceFreshness } from "@/lib/sources/cache";
 
 const beachSchema = z.object({
   beaches: z.array(
@@ -49,6 +51,27 @@ export function parseBeachesPayload(payload: unknown): BeachStatus[] {
     .sort((a, b) => Number(b.nearby) - Number(a.nearby));
 }
 
+const getCachedBeaches = unstable_cache(
+  async () => {
+    const response = await fetch(BEACHES_URL, {
+      cache: "no-store",
+      headers: { accept: "application/json" }
+    });
+    if (!response.ok) {
+      throw new Error(`Beach source returned ${response.status}`);
+    }
+    const beaches = parseBeachesPayload(await response.json());
+    return sourceOk(
+      { active: true, beaches, sourceUpdatedAt: nowIso() },
+      BEACHES_URL,
+      nowIso(),
+      beaches.length ? "fresh" : "empty"
+    );
+  },
+  ["badalona-beaches-v1", BEACHES_URL],
+  { revalidate: BEACHES_REVALIDATE_SECONDS }
+);
+
 export async function getBeachStatuses(date = new Date()) {
   const active = isSummer(date);
 
@@ -62,20 +85,7 @@ export async function getBeachStatuses(date = new Date()) {
   }
 
   try {
-    const response = await fetch(BEACHES_URL, {
-      next: { revalidate: 60 * 20 },
-      headers: { accept: "application/json" }
-    });
-    if (!response.ok) {
-      throw new Error(`Beach source returned ${response.status}`);
-    }
-    const beaches = parseBeachesPayload(await response.json());
-    return sourceOk(
-      { active, beaches, sourceUpdatedAt: nowIso() },
-      BEACHES_URL,
-      nowIso(),
-      beaches.length ? "fresh" : "empty"
-    );
+    return withSourceFreshness(await getCachedBeaches(), BEACHES_REVALIDATE_SECONDS);
   } catch (error) {
     return sourceError(
       { active, beaches: [] as BeachStatus[], sourceUpdatedAt: nowIso() },
