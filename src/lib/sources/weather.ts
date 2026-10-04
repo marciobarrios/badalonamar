@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { unstable_cache } from "next/cache";
 import type { WeatherToday } from "@/lib/types";
 import { WEATHER_URL } from "@/lib/sources/constants";
 import { nowIso, numberOrNull, sourceError, sourceOk } from "@/lib/sources/helpers";
+import { WEATHER_REVALIDATE_SECONDS, withSourceFreshness } from "@/lib/sources/cache";
 
 const weatherSchema = z.object({
   status: z.number().optional(),
@@ -26,10 +28,10 @@ export function parseWeatherPayload(payload: unknown): WeatherToday {
   };
 }
 
-export async function getWeatherToday() {
-  try {
+const getCachedWeather = unstable_cache(
+  async () => {
     const response = await fetch(WEATHER_URL, {
-      next: { revalidate: 60 * 30 },
+      cache: "no-store",
       headers: { accept: "application/json" }
     });
     if (!response.ok) {
@@ -37,6 +39,14 @@ export async function getWeatherToday() {
     }
     const data = parseWeatherPayload(await response.json());
     return sourceOk(data, WEATHER_URL, data.sourceUpdatedAt);
+  },
+  ["badalona-weather-v1", WEATHER_URL],
+  { revalidate: WEATHER_REVALIDATE_SECONDS }
+);
+
+export async function getWeatherToday() {
+  try {
+    return withSourceFreshness(await getCachedWeather(), WEATHER_REVALIDATE_SECONDS);
   } catch (error) {
     return sourceError<WeatherToday>(
       {

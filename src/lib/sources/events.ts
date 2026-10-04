@@ -1,8 +1,10 @@
 import * as cheerio from "cheerio";
+import { unstable_cache } from "next/cache";
 import type { EventItem } from "@/lib/types";
 import { absoluteUrl, stripHtml, uniqBy } from "@/lib/utils";
 import { AGENDA_URL } from "@/lib/sources/constants";
 import { nowIso, sourceError, sourceOk, tagLocality } from "@/lib/sources/helpers";
+import { EVENTS_REVALIDATE_SECONDS, withSourceFreshness } from "@/lib/sources/cache";
 
 const MONTHS: Record<string, number> = {
   gen: 1,
@@ -159,13 +161,13 @@ function isInMonth(item: EventItem, month: string) {
   return item.startsAt.slice(0, 7) === month;
 }
 
-export async function getEvents(month = new Date().toISOString().slice(0, 7)) {
-  try {
+const getCachedAgenda = unstable_cache(
+  async (year: number) => {
     const urls = [AGENDA_URL, `${AGENDA_URL}?b_start:int=30`];
     const pages = await Promise.all(
       urls.map(async (url) => {
         const response = await fetch(url, {
-          next: { revalidate: 60 * 60 },
+          cache: "no-store",
           headers: { accept: "text/html" }
         });
         if (!response.ok) {
@@ -175,19 +177,34 @@ export async function getEvents(month = new Date().toISOString().slice(0, 7)) {
       })
     );
 
+    return {
+      items: uniqBy(
+        pages.flatMap((page) => parseAgendaPage(page, year)),
+        (item) => item.id
+      ),
+      sourceUpdatedAt: nowIso()
+    };
+  },
+  ["badalona-agenda-v1", AGENDA_URL],
+  { revalidate: EVENTS_REVALIDATE_SECONDS }
+);
+
+export async function getEvents(month = new Date().toISOString().slice(0, 7)) {
+  try {
     const year = Number.parseInt(month.slice(0, 4), 10);
-    const items = uniqBy(
-      pages.flatMap((page) => parseAgendaPage(page, year)),
-      (item) => item.id
-    )
+    const agenda = await getCachedAgenda(year);
+    const items = agenda.items
       .filter((item) => isInMonth(item, month))
       .slice(0, 12);
 
-    return sourceOk(
-      { items, sourceUrl: AGENDA_URL },
-      AGENDA_URL,
-      nowIso(),
-      items.length ? "fresh" : "empty"
+    return withSourceFreshness(
+      sourceOk(
+        { items, sourceUrl: AGENDA_URL },
+        AGENDA_URL,
+        agenda.sourceUpdatedAt,
+        items.length ? "fresh" : "empty"
+      ),
+      EVENTS_REVALIDATE_SECONDS
     );
   } catch (error) {
     return sourceError(

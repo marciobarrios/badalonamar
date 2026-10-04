@@ -1,8 +1,10 @@
 import * as cheerio from "cheerio";
+import { unstable_cache } from "next/cache";
 import type { NewsItem } from "@/lib/types";
 import { absoluteUrl, stripHtml, uniqBy } from "@/lib/utils";
 import { BDNCOM_URL } from "@/lib/sources/constants";
 import { sourceError, sourceOk, tagLocality } from "@/lib/sources/helpers";
+import { NEWS_REVALIDATE_SECONDS, withSourceFreshness } from "@/lib/sources/cache";
 
 type CheerioSelection = ReturnType<cheerio.CheerioAPI>;
 
@@ -54,10 +56,10 @@ export function parseBdncomNews(html: string): NewsItem[] {
   return uniqBy(items, (item) => item.id).slice(0, 8);
 }
 
-export async function getNews() {
-  try {
+const getCachedNews = unstable_cache(
+  async () => {
     const response = await fetch(BDNCOM_URL, {
-      next: { revalidate: 60 * 15 },
+      cache: "no-store",
       headers: { accept: "text/html" }
     });
     if (!response.ok) {
@@ -70,6 +72,14 @@ export async function getNews() {
       undefined,
       items.length ? "fresh" : "empty"
     );
+  },
+  ["bdncom-news-v1", BDNCOM_URL],
+  { revalidate: NEWS_REVALIDATE_SECONDS }
+);
+
+export async function getNews() {
+  try {
+    return withSourceFreshness(await getCachedNews(), NEWS_REVALIDATE_SECONDS);
   } catch (error) {
     return sourceError(
       { items: [] as NewsItem[], source: "bdncom" as const, sourceUrl: BDNCOM_URL },
